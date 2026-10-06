@@ -1,0 +1,102 @@
+<Window x:Class="DeploymentManager.Views.DeploymentPreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Review &amp; Confirm Deployment" Height="620" Width="1000"
+        MinHeight="500" MinWidth="800" WindowStartupLocation="CenterOwner"
+        Background="{StaticResource DarkBgCanvasBrush}"
+        Icon="{StaticResource DeploymentIcon}">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource DarkSurfaceBrush}"
+                BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                CornerRadius="8" Padding="18,14" Margin="0,0,0,16">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="36" Height="36" Background="{StaticResource DarkBgSubBrush}"
+                            BorderBrush="{StaticResource AccentGoldBrush}" BorderThickness="1"
+                            CornerRadius="6" Margin="0,0,14,0" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8AB;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{StaticResource AccentGoldBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="DEPLOYMENT PREVIEW" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" />
+                        <TextBlock Text="Review Target Changes" FontSize="18" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,2,0,0" />
+                        <TextBlock Text="Files will be deployed to designated endpoints. Existing unmanaged files remain untouched." FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0" />
+                    </StackPanel>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Metric Stat Cards -->
+        <Border Grid.Row="1" Background="{StaticResource DarkBgSubBrush}"
+                BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                CornerRadius="6" Padding="14,10" Margin="0,0,0,14">
+            <UniformGrid Columns="4">
+                <!-- New Files -->
+                <Border Background="{StaticResource StatusGreenBgBrush}" BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,0,8,0">
+                    <DockPanel>
+                        <TextBlock Text="NEW FILES" FontSize="9" FontWeight="Bold" Foreground="{StaticResource StatusGreenBrush}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TotalNewFiles}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource StatusGreenBrush}" HorizontalAlignment="Right" />
+                    </DockPanel>
+                </Border>
+
+                <!-- Modified Files -->
+                <Border Background="{StaticResource AccentGoldDimBrush}" BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,0,8,0">
+                    <DockPanel>
+                        <TextBlock Text="MODIFIED" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TotalChangedFiles}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" HorizontalAlignment="Right" />
+                    </DockPanel>
+                </Border>
+
+                <!-- Unchanged Files -->
+                <Border Background="{StaticResource DarkSurfaceBrush}" BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12,8" Margin="0,0,8,0">
+                    <DockPanel>
+                        <TextBlock Text="UNCHANGED" FontSize="9" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TotalUnchangedFiles}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Right" />
+                    </DockPanel>
+                </Border>
+
+                <!-- Backups -->
+                <Border Background="{StaticResource DarkSurfaceAltBrush}" BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12,8">
+                    <DockPanel>
+                        <TextBlock Text="BACKUPS" FontSize="9" FontWeight="Bold" Foreground="{StaticResource StatusBlueBrush}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TotalBackupFiles}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource StatusBlueBrush}" HorizontalAlignment="Right" />
+                    </DockPanel>
+                </Border>
+            </UniformGrid>
+        </Border>
+
+        <!-- DataGrid Table -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Applications}" AutoGenerateColumns="False"
+                  IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="APPLICATION" Binding="{Binding Name}" Width="160" />
+                <DataGridTextColumn Header="IIS APP POOL" Binding="{Binding IisTarget}" Width="180" />
+                <DataGridTextColumn Header="DESTINATION" Binding="{Binding DestinationFolder}" Width="*" />
+                <DataGridTextColumn Header="NEW" Binding="{Binding NewFiles}" Width="70" />
+                <DataGridTextColumn Header="MODIFIED" Binding="{Binding ChangedFiles}" Width="85" />
+                <DataGridTextColumn Header="UNCHANGED" Binding="{Binding UnchangedFiles}" Width="95" />
+                <DataGridTextColumn Header="BACKUPS" Binding="{Binding BackupFiles}" Width="85" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Footer Actions -->
+        <Border Grid.Row="3" Margin="0,16,0,0">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource StatusGreenBrush}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                    <TextBlock Text="All checks verified. Click Deploy to execute." Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" />
+                </StackPanel>
+                <Button DockPanel.Dock="Right" Content="Deploy" IsDefault="True" Click="Deploy_Click"
+                        Style="{StaticResource PrimaryButtonStyle}" Padding="22,9" />
+                <Button DockPanel.Dock="Right" Content="Cancel" IsCancel="True" Margin="0,0,10,0" Padding="16,9" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

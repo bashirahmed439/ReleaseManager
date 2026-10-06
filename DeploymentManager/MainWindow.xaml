@@ -1,0 +1,495 @@
+<Window x:Class="DeploymentManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:automation="clr-namespace:System.Windows.Automation;assembly=PresentationCore"
+        Title="Deployment Manager" Height="880" Width="1280"
+        MinHeight="720" MinWidth="980" Background="{StaticResource DarkBgCanvasBrush}"
+        Icon="{StaticResource DeploymentIcon}">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ========================================================= -->
+        <!-- TOP NAVIGATION & STATUS HEADER                            -->
+        <!-- ========================================================= -->
+        <Border Grid.Row="0" Background="{StaticResource DarkSurfaceBrush}"
+                BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                CornerRadius="8" Padding="18,12" Margin="0,0,0,16">
+            <DockPanel LastChildFill="False">
+                <!-- Left: Application Branding -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="38" Height="38" Background="{StaticResource DarkBgSubBrush}"
+                            BorderBrush="{StaticResource AccentGoldBrush}" BorderThickness="1"
+                            CornerRadius="6" Margin="0,0,14,0" VerticalAlignment="Center">
+                        <Image Source="{StaticResource DeploymentIcon}" Width="26" Height="26" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="RELEASE HUB" FontSize="11" FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" Margin="0,0,6,0" />
+                            <Border Background="{StaticResource AccentGoldDimBrush}" CornerRadius="3" Padding="5,1">
+                                <TextBlock Text="ENTERPRISE" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" />
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="Deployment Manager" FontSize="20" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,2,0,0" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Right: Live Status Metrics & Actions -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Status Indicator -->
+                    <Border Background="{StaticResource DarkBgSubBrush}" BorderBrush="{StaticResource DarkBorderBrush}"
+                            BorderThickness="1" CornerRadius="4" Padding="12,6" Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="7" Height="7" Fill="{StaticResource StatusGreenBrush}" Margin="0,0,7,0" />
+                            <TextBlock Text="SYSTEM READY" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource StatusGreenBrush}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Last Deployed Metric -->
+                    <Border Background="{StaticResource DarkBgSubBrush}" BorderBrush="{StaticResource DarkBorderBrush}"
+                            BorderThickness="1" CornerRadius="4" Padding="14,6" Margin="0,0,10,0">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="LAST DEPLOYED" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Right" />
+                            <TextBlock Text="{Binding LastDeployedText}" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" HorizontalAlignment="Right" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Save Configuration Button -->
+                    <Button Command="{Binding SaveCommand}" Width="36" Height="36" Padding="0"
+                            ToolTip="Save configuration" automation:AutomationProperties.Name="Save configuration"
+                            Style="{StaticResource IconButtonStyle}"
+                            BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                            Background="{StaticResource DarkSurfaceAltBrush}">
+                        <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{StaticResource AccentGoldBrush}" />
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ========================================================= -->
+        <!-- MAIN TAB NAVIGATION                                       -->
+        <!-- ========================================================= -->
+        <TabControl Grid.Row="1">
+            <!-- ========================================== -->
+            <!-- TAB 1: PROJECTS                            -->
+            <!-- ========================================== -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE80F;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Projects" FontWeight="SemiBold" />
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="480" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="380" MinWidth="260" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Column: Controls & Project Mappings -->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Global Backup Root Configuration Card -->
+                        <Border Grid.Row="0" Background="{StaticResource DarkBgSubBrush}"
+                                BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                                CornerRadius="6" Padding="14,10" Margin="0,0,0,14">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center" Margin="0,0,18,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{StaticResource AccentGoldBrush}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="GLOBAL BACKUP ROOT" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" />
+                                    </StackPanel>
+                                    <TextBlock Text="Overwritten files archive" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0" />
+                                </StackPanel>
+                                <TextBox Grid.Column="1" Text="{Binding BackupRoot, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseBackupRootCommand}" Margin="10,0,0,0" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Deployment Mappings Header & Actions -->
+                        <Grid Grid.Row="1" Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                <TextBlock Text="Deployment Mappings" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,10,0" />
+                                <Border Background="{StaticResource DarkSurfaceAltBrush}" CornerRadius="3" Padding="6,2">
+                                    <TextBlock Text="{Binding Mappings.Count, StringFormat={}{0} Projects}" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Button Content="Select all" Command="{Binding SelectAllCommand}" Margin="0,0,8,0" />
+                                <Button Content="Select none" Command="{Binding SelectNoneCommand}" Margin="0,0,8,0" />
+                                <Button Content="+ Add project" Command="{Binding AddCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Project Cards Container Border -->
+                        <Border Grid.Row="2" Background="{StaticResource DarkBgSubBrush}"
+                                BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="12,12,0,0" ClipToBounds="True">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding Mappings}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="330" MinHeight="185" Margin="0,0,12,12"
+                                                    Background="{StaticResource DarkSurfaceBrush}"
+                                                    BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                                                    CornerRadius="6" ClipToBounds="True">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+
+                                                    <!-- Card Header -->
+                                                    <Border Background="{StaticResource DarkSurfaceAltBrush}"
+                                                            BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="0,0,0,1"
+                                                            Padding="12,8">
+                                                        <DockPanel>
+                                                            <!-- Actions (Rollback, Edit, Delete) -->
+                                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                                                <Button Width="26" Height="26" Padding="0" Margin="0,0,4,0"
+                                                                        ToolTip="Roll back this project from latest deployment"
+                                                                        automation:AutomationProperties.Name="Roll back project"
+                                                                        Style="{StaticResource IconButtonStyle}"
+                                                                        Command="{Binding DataContext.RollbackApplicationCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                                        CommandParameter="{Binding Name}">
+                                                                    <TextBlock Text="&#xE7A7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource AccentGoldBrush}" />
+                                                                </Button>
+                                                                <Button Width="26" Height="26" Padding="0" Margin="0,0,4,0"
+                                                                        ToolTip="Edit configuration" automation:AutomationProperties.Name="Edit project"
+                                                                        Style="{StaticResource IconButtonStyle}"
+                                                                        Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                                        CommandParameter="{Binding}">
+                                                                    <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" />
+                                                                </Button>
+                                                                <Button Width="26" Height="26" Padding="0" ToolTip="Remove project"
+                                                                        automation:AutomationProperties.Name="Remove project"
+                                                                        Style="{StaticResource IconButtonStyle}"
+                                                                        Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                                        CommandParameter="{Binding}">
+                                                                    <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource StatusRedBrush}" />
+                                                                </Button>
+                                                            </StackPanel>
+
+                                                            <!-- CheckBox + Title -->
+                                                            <CheckBox Content="{Binding Name}" IsChecked="{Binding SelectedForDeployment, UpdateSourceTrigger=PropertyChanged}"
+                                                                      VerticalAlignment="Center" FontSize="13" FontWeight="Bold"
+                                                                      Foreground="{StaticResource TextPrimaryBrush}"
+                                                                      IsEnabled="{Binding Enabled}" ToolTip="Select for deployment" />
+                                                        </DockPanel>
+                                                    </Border>
+
+                                                    <!-- Card Body: Paths -->
+                                                    <StackPanel Grid.Row="1" Margin="12,10,12,10">
+                                                        <TextBlock Text="SOURCE" FontSize="9" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" />
+                                                        <Border Background="{StaticResource DarkInputBgBrush}" CornerRadius="3" Padding="6,4" Margin="0,3,0,8" BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1">
+                                                            <TextBlock Text="{Binding SourceFolder}" ToolTip="{Binding SourceFolder}" TextTrimming="CharacterEllipsis"
+                                                                       FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Consolas" />
+                                                        </Border>
+
+                                                        <TextBlock Text="DESTINATION" FontSize="9" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" />
+                                                        <Border Background="{StaticResource DarkInputBgBrush}" CornerRadius="3" Padding="6,4" Margin="0,3,0,0" BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1">
+                                                            <TextBlock Text="{Binding DestinationFolder}" ToolTip="{Binding DestinationFolder}" TextTrimming="CharacterEllipsis"
+                                                                       FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" FontFamily="Consolas" />
+                                                        </Border>
+                                                    </StackPanel>
+
+                                                    <!-- Card Footer: Status Badges -->
+                                                    <Border Grid.Row="2" Background="{StaticResource DarkBgSubBrush}"
+                                                            BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="0,1,0,0"
+                                                            Padding="12,7">
+                                                        <WrapPanel>
+                                                            <Border Background="{StaticResource StatusGreenBgBrush}" CornerRadius="3" Padding="5,2" Margin="0,0,6,0">
+                                                                <TextBlock Text="{Binding Enabled, StringFormat=Active: {0}}" FontSize="9" FontWeight="Bold" Foreground="{StaticResource StatusGreenBrush}" />
+                                                            </Border>
+                                                            <Border Background="{StaticResource DarkSurfaceAltBrush}" CornerRadius="3" Padding="5,2" Margin="0,0,6,0">
+                                                                <TextBlock Text="{Binding BackupEnabled, StringFormat=Backup: {0}}" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" />
+                                                            </Border>
+                                                            <Border Background="{StaticResource DarkSurfaceAltBrush}" CornerRadius="3" Padding="5,2">
+                                                                <TextBlock Text="{Binding JavaScriptScaffoldingEnabled, StringFormat=JS: {0}}" FontSize="9" FontWeight="SemiBold" Foreground="{StaticResource TextSecondaryBrush}" />
+                                                            </Border>
+                                                        </WrapPanel>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Border>
+
+                        <!-- Deployment Action Bar -->
+                        <DockPanel Grid.Row="3" Margin="0,10,0,10" LastChildFill="False">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource AccentGoldBrush}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Smart sync active: only new and modified files will be copied." VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                            </StackPanel>
+                            <Button DockPanel.Dock="Right" Content="Preview &amp; Deploy" Command="{Binding PreviewDeploymentCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}" Padding="18,8" />
+                            <Button DockPanel.Dock="Right" Content="Cancel" Command="{Binding CancelDeploymentCommand}"
+                                    Style="{StaticResource DangerButtonStyle}" Margin="0,0,8,0" />
+                        </DockPanel>
+
+                        <!-- Live Progress Gauge Card -->
+                        <Border Grid.Row="4" Background="{StaticResource DarkBgSubBrush}"
+                                BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                                CornerRadius="6" Padding="14,10" Margin="0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <DockPanel>
+                                    <TextBlock Text="{Binding ProgressMessage}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12" />
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding OverallProgress, StringFormat={}{0:F0}%}"
+                                               FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" FontSize="13" />
+                                </DockPanel>
+                                <ProgressBar Grid.Row="1" Minimum="0" Maximum="100" Value="{Binding OverallProgress, Mode=OneWay}"
+                                             Height="7" Margin="0,8,0,0" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Resizable GridSplitter -->
+                    <GridSplitter Grid.Column="1" Width="10" HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                                  Background="Transparent" Cursor="SizeWE"
+                                  ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" />
+
+                    <!-- Right Column: Deployment Console / Audit Log -->
+                    <Border Grid.Column="2" Background="{StaticResource DarkBgSubBrush}"
+                            BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                            CornerRadius="6" Padding="12,8">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="6" Height="6" Fill="{StaticResource StatusGreenBrush}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="DEPLOYMENT CONSOLE / AUDIT LOG" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </DockPanel>
+                            <ListBox ItemsSource="{Binding DeploymentLog}" BorderThickness="0" Background="Transparent"
+                                     FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- ========================================== -->
+            <!-- TAB 2: LAST DEPLOYMENT                     -->
+            <!-- ========================================== -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Last Deployment" FontWeight="SemiBold" />
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Section Header -->
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="DEPLOYMENT RECORD" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" />
+                        <TextBlock Text="Recent Deployment History" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <!-- Overview Metric Cards -->
+                    <Border Grid.Row="1" Background="{StaticResource DarkBgSubBrush}"
+                            BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                            CornerRadius="6" Padding="16" Margin="0,0,0,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Margin="0,0,32,0">
+                                <TextBlock Text="TIMESTAMP" FontSize="9" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" />
+                                <TextBlock Text="{Binding LastDeployedText}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0" />
+                                <Border Background="{StaticResource StatusGreenBgBrush}" HorizontalAlignment="Left" CornerRadius="3" Padding="6,2" Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding LastDeploymentStatusText}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource StatusGreenBrush}" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="SUMMARY" FontSize="9" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" />
+                                <TextBlock Text="{Binding LastDeploymentFilesSummary}" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Deployed Files Table -->
+                    <ListView Grid.Row="2" ItemsSource="{Binding LastDeploymentFiles}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="PROJECT" DisplayMemberBinding="{Binding ApplicationName}" Width="260" />
+                                <GridViewColumn Header="DEPLOYED FILE PATH" DisplayMemberBinding="{Binding RelativePath}" Width="750" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                    <!-- Rollback Action Bar -->
+                    <DockPanel Grid.Row="3" Margin="0,14,0,0" LastChildFill="False">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{StaticResource StatusRedBrush}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                            <TextBlock Text="Rollback will restore original backups and remove files introduced in this deployment." VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" />
+                        </StackPanel>
+                        <Button DockPanel.Dock="Right" Content="Roll Back Latest Deployment" Command="{Binding RollbackAllCommand}"
+                                Style="{StaticResource DangerButtonStyle}" Padding="16,8" />
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ========================================== -->
+            <!-- TAB 3: PACKAGES                            -->
+            <!-- ========================================== -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Packages" FontWeight="SemiBold" />
+                    </StackPanel>
+                </TabItem.Header>
+
+                <Grid Margin="20" DataContext="{Binding PackageBuilder}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="PACKAGE BUILDER &amp; COMPILER" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" />
+                        <TextBlock Text="Publish Delta Collector" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0" />
+                        <TextBlock Text="Gathers publish-output files modified in the last hour and structures them by project." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <!-- Configuration Panel -->
+                    <Border Grid.Row="1" Background="{StaticResource DarkBgSubBrush}"
+                            BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                            CornerRadius="6" Padding="16" Margin="0,0,0,14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="SOLUTION FOLDER" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1" Text="{Binding SolutionFolder, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+                            <Button Grid.Column="2" Content="Browse..." Command="{Binding BrowseSolutionCommand}" Margin="10,0,0,10" />
+
+                            <TextBlock Grid.Row="1" Text="PACKAGE OUTPUT" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding OutputFolder, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+                            <Button Grid.Row="1" Grid.Column="2" Content="Browse..." Command="{Binding BrowseOutputCommand}" Margin="10,0,0,10" />
+
+                            <TextBlock Grid.Row="2" Text="EXCLUDE PATTERNS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" />
+                            <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding ExcludePatterns, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Separate patterns with ; for example: *.pdb; logs; wwwroot\uploads" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Status & Create Actions -->
+                    <Grid Grid.Row="2" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                            <TextBox Text="{Binding LastPackageFolder, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                                     Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Padding="0,4,0,0" FontFamily="Consolas" />
+                            <ProgressBar IsIndeterminate="True" Height="4" Margin="0,6,0,0" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="0,0,8,0" />
+                            <Button Content="Create Deployable Packages" Command="{Binding CreatePackageCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Results Split View -->
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="14" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <ListView ItemsSource="{Binding Results}" SelectedItem="{Binding SelectedResult, Mode=TwoWay}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="PROJECT" DisplayMemberBinding="{Binding ProjectName}" Width="160" />
+                                    <GridViewColumn Header="SUMMARY" DisplayMemberBinding="{Binding Summary}" Width="300" />
+                                    <GridViewColumn Header="PACKAGE FOLDER" DisplayMemberBinding="{Binding PackageFolder}" Width="380" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <Border Grid.Column="2" Background="{StaticResource DarkBgSubBrush}"
+                                BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                                CornerRadius="6">
+                            <DockPanel>
+                                <Border DockPanel.Dock="Top" Background="{StaticResource DarkSurfaceBrush}"
+                                        BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="0,0,0,1"
+                                        Padding="12,8">
+                                    <TextBlock Text="Published Files in the Last Hour" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+                                </Border>
+                                <ListBox ItemsSource="{Binding SelectedResult.Files}" BorderThickness="0" Background="Transparent"
+                                         FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="8" />
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- ========================================================= -->
+        <!-- FOOTER STATUS BAR                                         -->
+        <!-- ========================================================= -->
+        <Border Grid.Row="2" Background="{StaticResource DarkSurfaceBrush}"
+                BorderBrush="{StaticResource DarkBorderBrush}" BorderThickness="1"
+                CornerRadius="4" Padding="12,6" Margin="0,12,0,0">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="6" Height="6" Fill="{StaticResource StatusGreenBrush}" Margin="0,0,8,0" />
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <TextBlock DockPanel.Dock="Right" Text="DEPLOYMENT MANAGER v2.0" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AccentGoldBrush}" HorizontalAlignment="Right" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
